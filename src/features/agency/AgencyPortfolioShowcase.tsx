@@ -220,14 +220,14 @@ export function AgencyPortfolioShowcase() {
         </p>
       </div>
 
-      <div className="mx-auto mt-14 flex max-w-5xl gap-6 md:gap-10">
+      <div className="mx-auto mt-14 flex max-w-5xl justify-center gap-0 md:justify-start md:gap-10">
         <div
           id="selected-work-scroll"
           ref={viewportRef}
           tabIndex={0}
           role="region"
           aria-label="Portfolio screenshots"
-          className="showcase-no-scrollbar relative max-h-[min(72vh,720px)] min-h-[300px] flex-1 touch-pan-y cursor-grab overflow-y-auto overflow-x-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-[0_36px_100px_-50px_rgba(125,211,252,0.25)] active:cursor-grabbing md:rounded-[36px]"
+          className="showcase-no-scrollbar relative max-h-[min(72vh,720px)] min-h-[300px] w-full touch-pan-y cursor-grab overflow-y-auto overflow-x-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-[0_36px_100px_-50px_rgba(125,211,252,0.25)] active:cursor-grabbing md:min-h-[300px] md:flex-1 md:rounded-[36px]"
           onPointerDown={onPointerDownViewport}
           onPointerMove={onPointerMoveViewport}
           onPointerUp={releaseBody}
@@ -257,7 +257,7 @@ export function AgencyPortfolioShowcase() {
                       className="h-full w-full object-cover object-top opacity-[0.93] transition duration-700 group-hover:scale-[1.02] group-hover:opacity-100"
                       loading={idx < 2 ? "eager" : "lazy"}
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-4 pb-5 pt-24 md:p-6 md:pb-6 md:pt-32">
+                    <div className="absolute inset-x-0 bottom-0 hidden bg-gradient-to-t from-black via-black/85 to-transparent p-4 pb-5 pt-24 md:block md:p-6 md:pb-6 md:pt-32">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/50">
                         Deployed site
                       </p>
@@ -272,7 +272,7 @@ export function AgencyPortfolioShowcase() {
           </ul>
         </div>
 
-        <div className="flex w-5 shrink-0 flex-col items-center pt-1 md:w-7">
+        <div className="hidden w-7 shrink-0 flex-col items-center pt-1 md:flex">
           <span
             aria-hidden
             className="select-none pb-5 text-[11px] font-semibold italic text-white/35 [writing-mode:vertical-rl]"

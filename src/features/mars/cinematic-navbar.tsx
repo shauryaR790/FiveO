@@ -13,7 +13,10 @@ export function CinematicNavbar() {
   return (
     <nav className="pointer-events-none fixed left-0 right-0 top-4 z-50 px-8 lg:px-16">
       <div className="relative mx-auto flex w-full max-w-[108rem] items-center justify-between pointer-events-auto">
-        <div className="liquid-glass flex h-12 shrink-0 items-center justify-center rounded-full px-3 font-mars-heading text-xs font-semibold italic leading-none tracking-[0.12em] text-white">
+        <span className="font-mars-heading text-base font-bold tracking-[0.18em] text-white md:hidden">
+          FIVEO
+        </span>
+        <div className="hidden h-12 shrink-0 items-center justify-center rounded-full px-3 font-mars-heading text-xs font-semibold italic leading-none tracking-[0.12em] text-white liquid-glass md:flex">
           5O
         </div>
 

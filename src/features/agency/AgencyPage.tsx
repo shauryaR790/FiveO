@@ -182,9 +182,9 @@ export function AgencyPage() {
       {/* Mission — normal document flow (no sticky / tall scroll runway) */}
       <motion.section {...fadeUp(0)} className="relative pb-32 pt-0 md:pb-44">
         <div className="flex flex-col items-center justify-start gap-8 px-4 py-10 md:gap-10 md:px-8 md:py-14 lg:px-12">
-          <div className="relative w-full overflow-x-clip">
+          <div className="relative flex w-full justify-center overflow-x-clip md:block">
             <video
-              className="mx-auto aspect-square max-w-none shrink-0 rounded-[28px] object-cover shadow-2xl md:rounded-[40px] [width:min(138vmin,100vw)]"
+              className="aspect-square max-h-none w-[min(100%,min(92vw,28rem))] shrink-0 rounded-[28px] object-cover object-center shadow-2xl md:max-w-none md:w-auto md:rounded-[40px] md:[width:min(138vmin,100vw)]"
               src={MISSION_MP4}
               autoPlay
               muted
@@ -193,7 +193,7 @@ export function AgencyPage() {
             />
           </div>
 
-          <div className="mx-auto w-full max-w-5xl px-4 text-center">
+          <div className="mx-auto hidden w-full max-w-5xl px-4 text-center md:block">
             <p className="text-xl font-medium tracking-[-1px] text-balance md:text-2xl lg:text-3xl">
               {firstWords.map((wordEntry, idx) => (
                 <span
