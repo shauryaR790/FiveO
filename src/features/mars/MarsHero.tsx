@@ -30,12 +30,15 @@ export function MarsPageOne() {
       <div className="relative z-10 flex min-h-svh flex-col pt-24 md:min-h-[100vh]">
 
         <div className="flex flex-1 flex-col items-center justify-center px-4">
-          <motion.div {...marsEntrance(0.4)} className="inline-flex rounded-full">
-            <div className="liquid-glass flex items-center gap-3 overflow-hidden rounded-full pr-3">
-              <span className="rounded-full bg-white px-3 py-1 font-mars-body text-xs font-semibold whitespace-nowrap text-black">
+          <motion.div
+            {...marsEntrance(0.4)}
+            className="flex w-full justify-center px-1 sm:inline-flex sm:w-auto sm:px-0"
+          >
+            <div className="liquid-glass flex w-full max-w-[min(17.5rem,86vw)] flex-col items-start gap-2 overflow-hidden rounded-2xl px-3 py-2.5 sm:max-w-none sm:flex-row sm:items-center sm:gap-3 sm:rounded-full sm:py-1.5 sm:pr-3">
+              <span className="rounded-full bg-white px-2.5 py-0.5 font-mars-body text-[11px] font-semibold whitespace-nowrap text-black sm:px-3 sm:py-1 sm:text-xs">
                 New
               </span>
-              <span className="pr-1 font-mars-body text-sm whitespace-nowrap text-white/90">
+              <span className="max-w-full pr-0 font-mars-body text-[11px] leading-snug text-white/90 sm:pr-1 sm:text-sm sm:leading-normal sm:whitespace-nowrap">
                 Full-stack web partnerships for teams that ship
               </span>
             </div>
