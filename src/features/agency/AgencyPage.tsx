@@ -184,7 +184,7 @@ export function AgencyPage() {
         <div className="flex flex-col items-center justify-start gap-8 px-4 py-10 md:gap-10 md:px-8 md:py-14 lg:px-12">
           <div className="relative flex w-full justify-center overflow-x-clip md:block">
             <video
-              className="aspect-square max-h-none w-[min(100%,min(92vw,28rem))] shrink-0 rounded-[28px] object-cover object-center shadow-2xl md:max-w-none md:w-auto md:rounded-[40px] md:[width:min(138vmin,100vw)]"
+              className="aspect-square max-h-none w-[min(100%,min(92vw,28rem))] shrink-0 rounded-[28px] object-cover object-center shadow-2xl md:mx-auto md:max-w-none md:w-auto md:rounded-[40px] md:[width:min(138vmin,100vw)]"
               src={MISSION_MP4}
               autoPlay
               muted
