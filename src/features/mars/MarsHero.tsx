@@ -80,7 +80,7 @@ export function MarsPageOne() {
 
           <motion.div
             {...marsEntrance(1.3)}
-            className="mt-8 flex flex-wrap items-stretch justify-center gap-4"
+            className="mt-10 flex flex-wrap items-stretch justify-center gap-5 md:mt-12 md:gap-6"
           >
             <div className={CARD}>
               <IconClockOutline size={28} />
@@ -105,12 +105,15 @@ export function MarsPageOne() {
 
         <motion.div
           {...marsEntrance(1.4)}
-          className="flex flex-col items-center gap-4 px-4 pb-8"
+          className="mt-10 flex flex-col items-center gap-8 px-4 pb-16 md:mt-14 md:gap-11 md:pb-10"
         >
-          <span className="liquid-glass max-w-xl rounded-full px-3.5 py-1 text-center font-mars-body text-xs font-medium text-white">
+          <span className="liquid-glass max-w-xl rounded-full px-4 py-2.5 text-center font-mars-body text-xs leading-relaxed font-medium text-white md:px-3.5 md:py-1.5 md:leading-normal">
             Trusted by founders, marketers, and product teams shipping serious web work
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-3 font-mars-heading text-2xl italic tracking-tight text-white md:gap-x-16 md:text-3xl">
+          <p className="px-2 text-center font-mars-heading text-xs italic leading-none tracking-[-0.02em] text-white sm:text-sm md:hidden">
+            {partnersRow.filter((s) => s !== "·").join(" · ")}
+          </p>
+          <div className="hidden flex-wrap items-center justify-center gap-x-12 gap-y-4 font-mars-heading text-2xl italic tracking-tight text-white md:flex md:gap-x-16 md:text-3xl">
             {partnersRow.map((segment, idx) => (
               <span key={`partner-${idx}`}>{segment}</span>
             ))}
