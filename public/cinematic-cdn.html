@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mars Voyages — Across the Universe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              heading: ['Instrument Serif', 'serif'],
+              body: ['Barlow', 'sans-serif'],
+            },
+            borderRadius: {
+              DEFAULT: '9999px',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .liquid-glass {
+        background: rgba(255, 255, 255, 0.01);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: none;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.4px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.45) 0%,
+          rgba(255, 255, 255, 0.15) 20%,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 0) 60%,
+          rgba(255, 255, 255, 0.15) 80%,
+          rgba(255, 255, 255, 0.45) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .liquid-glass-strong {
+        background: rgba(255, 255, 255, 0.01);
+        background-blend-mode: luminosity;
+        backdrop-filter: blur(50px);
+        -webkit-backdrop-filter: blur(50px);
+        border: none;
+        box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+      .liquid-glass-strong::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.4px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.5) 0%,
+          rgba(255, 255, 255, 0.2) 20%,
+          rgba(255, 255, 255, 0) 40%,
+          rgba(255, 255, 255, 0) 60%,
+          rgba(255, 255, 255, 0.2) 80%,
+          rgba(255, 255, 255, 0.5) 100%
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body class="bg-[#000]">
+    <div id="root"></div>
+
+    <script
+      src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+      integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+      integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+      integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/framer-motion@11.11.17/dist/framer-motion.js"></script>
+    <!-- fm 11.11.x UMD populates Motion; preserve if a FramerMotion global exists -->
+    <script>
+      window.Motion = window.FramerMotion || window.Motion;
+    </script>
+
+    <script type="text/babel">
+      const FADE_MS = 500;
+      const FADE_OUT_LEAD = 0.55;
+
+      function fadeTo(video, targetOpacity, duration, rafIdRef) {
+        if (rafIdRef.current != null) {
+          cancelAnimationFrame(rafIdRef.current);
+          rafIdRef.current = null;
+        }
+
+        let startOpacity = parseFloat(video.style.opacity);
+        if (!Number.isFinite(startOpacity)) startOpacity = 0;
+
+        const from = startOpacity;
+        const to = targetOpacity;
+        const startTime = performance.now();
+
+        function step(now) {
+          var elapsed = now - startTime;
+          var t = Math.min(1, elapsed / duration);
+          video.style.opacity = String(from + (to - from) * t);
+
+          if (t < 1) {
+            rafIdRef.current = requestAnimationFrame(step);
+          } else {
+            rafIdRef.current = null;
+          }
+        }
+
+        rafIdRef.current = requestAnimationFrame(step);
+      }
+
+      function FadingVideo({ src, className, style }) {
+        var containerRef = React.useRef(null);
+        var fadingOutRef = React.useRef(false);
+        var rafCancelRef = React.useRef(null);
+
+        React.useEffect(
+          function () {
+            var video =
+              containerRef.current && containerRef.current.querySelector('video');
+            if (!video) return;
+
+            video.style.opacity = '0';
+            fadingOutRef.current = false;
+
+            function onLoadedData() {
+              fadingOutRef.current = false;
+              video.style.opacity = '0';
+              video.play().catch(function () {});
+              fadeTo(video, 1, FADE_MS, rafCancelRef);
+            }
+
+            function onTimeUpdate() {
+              if (!video.duration || !Number.isFinite(video.duration)) return;
+              var remaining = video.duration - video.currentTime;
+              if (
+                !fadingOutRef.current &&
+                remaining <= FADE_OUT_LEAD &&
+                remaining > 0
+              ) {
+                fadingOutRef.current = true;
+                fadeTo(video, 0, FADE_MS, rafCancelRef);
+              }
+            }
+
+            function onEnded() {
+              video.style.opacity = '0';
+              setTimeout(function () {
+                fadingOutRef.current = false;
+                video.currentTime = 0;
+                video.play().catch(function () {});
+                fadeTo(video, 1, FADE_MS, rafCancelRef);
+              }, 100);
+            }
+
+            video.addEventListener('loadeddata', onLoadedData);
+            video.addEventListener('timeupdate', onTimeUpdate);
+            video.addEventListener('ended', onEnded);
+
+            return function cleanup() {
+              if (rafCancelRef.current != null) {
+                cancelAnimationFrame(rafCancelRef.current);
+                rafCancelRef.current = null;
+              }
+              video.removeEventListener('loadeddata', onLoadedData);
+              video.removeEventListener('timeupdate', onTimeUpdate);
+              video.removeEventListener('ended', onEnded);
+            };
+          },
+          [src],
+        );
+
+        return (
+          <div
+            ref={containerRef}
+            className="absolute inset-0 overflow-hidden pointer-events-none"
+          >
+            <video
+              src={src}
+              muted
+              autoPlay
+              playsInline
+              preload="auto"
+              className={className}
+              style={style || {}}
+            />
+          </div>
+        );
+      }
+
+      window.FadingVideo = FadingVideo;
+    </script>
+
+    <script type="text/babel">
+      var motion = Motion.motion;
+
+      function BlurText({ text, className }) {
+        var rootRef = React.useRef(null);
+        var words = React.useMemo(
+          function () {
+            return text.split(/\s+/).filter(Boolean);
+          },
+          [text],
+        );
+        var visibleState = React.useState(false);
+        var visible = visibleState[0];
+        var setVisible = visibleState[1];
+
+        React.useEffect(
+          function () {
+            var el = rootRef.current;
+            if (!el) return;
+            var io = new IntersectionObserver(
+              function (entries) {
+                entries.forEach(function (e) {
+                  if (e.isIntersecting) setVisible(true);
+                });
+              },
+              { threshold: 0.1 },
+            );
+            io.observe(el);
+            return function () {
+              io.disconnect();
+            };
+          },
+          [text],
+        );
+
+        return (
+          <p
+            ref={rootRef}
+            className={'flex flex-wrap justify-center gap-y-[0.1em] ' + (className || '')}
+          >
+            {words.map(function (word, idx) {
+              return (
+                <motion.span
+                  key={'w-' + idx + '-' + word}
+                  initial={{
+                    filter: 'blur(10px)',
+                    opacity: 0,
+                    y: 50,
+                  }}
+                  animate={
+                    visible
+                      ? {
+                          filter: ['blur(10px)', 'blur(5px)', 'blur(0px)'],
+                          opacity: [0, 0.5, 1],
+                          y: [50, -5, 0],
+                        }
+                      : {
+                          filter: 'blur(10px)',
+                          opacity: 0,
+                          y: 50,
+                        }
+                  }
+                  transition={{
+                    duration: 0.7,
+                    times: [0, 0.5, 1],
+                    ease: 'easeOut',
+                    delay: idx * 0.1,
+                  }}
+                  style={{ display: 'inline-block', marginRight: '0.28em' }}
+                >
+                  {word}
+                </motion.span>
+              );
+            })}
+          </p>
+        );
+      }
+
+      window.BlurText = BlurText;
+    </script>
+
+    <script type="text/babel">
+      function IconArrowUpRight({ className }) {
+        return (
+          <svg
+            className={className}
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 17L17 7M7 7h10v10"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        );
+      }
+
+      function IconPlayFilled({ className }) {
+        return (
+          <svg
+            className={className}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <polygon points="6 4 20 12 6 20 6 4" />
+          </svg>
+        );
+      }
+
+      window.IconArrowUpRight = IconArrowUpRight;
+      window.IconPlayFilled = IconPlayFilled;
+    </script>
+
+    <script type="text/babel">
+      (function suppressMotionKeyWarnings() {
+        var original = console.error;
+        console.error = function () {
+          var msg = arguments[0];
+          if (
+            typeof msg === 'string' &&
+            (msg.indexOf('Each child in a list should have a unique') !== -1 ||
+              msg.indexOf('unique "key" prop') !== -1)
+          )
+            return;
+          return original.apply(console, arguments);
+        };
+      })();
+    </script>
+
+    <script type="text/babel">
+      var motion = Motion.motion;
+
+      function Navbar() {
+        return (
+          <nav className="fixed left-0 right-0 top-4 z-50 px-8 lg:px-16 pointer-events-none">
+            <div className="relative mx-auto flex w-full max-w-[108rem] items-center justify-between pointer-events-auto">
+              <div className="liquid-glass flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl italic text-white font-heading">
+                a
+              </div>
+
+              <div className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 items-center gap-4 lg:pointer-events-auto lg:flex">
+                <div className="liquid-glass flex flex-wrap items-center justify-center px-1.5 py-1.5 rounded">
+                  {['Home', 'Voyages', 'Worlds', 'Innovation', 'Plan Launch'].map(function (label) {
+                    return (
+                      <a
+                        key={label}
+                        href="#"
+                        className="whitespace-nowrap px-3 py-2 font-body text-sm font-medium text-white/90 hover:text-white"
+                      >
+                        {label}
+                      </a>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2 font-body text-sm font-medium whitespace-nowrap text-black"
+                  >
+                    Claim a Spot
+                    <IconArrowUpRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div aria-hidden className="invisible h-12 w-12 shrink-0" />
+            </div>
+          </nav>
+        );
+      }
+
+      window.Navbar = Navbar;
+    </script>
+
+    <script type="text/babel">
+      function IconClockOutline(props) {
+        var s = props.size || 28;
+        return (
+          <svg width={s} height={s} fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="white" strokeWidth="1.5" />
+            <path
+              d="M12 7v5l3 3"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        );
+      }
+
+      function IconGlobeOutline(props) {
+        var s = props.size || 28;
+        return (
+          <svg width={s} height={s} fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="white" strokeWidth="1.5" />
+            <path
+              d="M3 12h18M12 3a17 17 0 014 18M12 3a17 17 0 01-4 18"
+              stroke="white"
+              strokeWidth="1.5"
+            />
+          </svg>
+        );
+      }
+
+      window.IconClockOutline = IconClockOutline;
+      window.IconGlobeOutline = IconGlobeOutline;
+    </script>
+
+    <script type="text/babel">
+      var motion = Motion.motion;
+
+      function entrance(delaySeconds) {
+        return {
+          initial: { filter: 'blur(10px)', opacity: 0, y: 20 },
+          animate: { filter: 'blur(0px)', opacity: 1, y: 0 },
+          transition: { duration: 0.7, delay: delaySeconds, ease: 'easeOut' },
+        };
+      }
+
+      function HeroSection() {
+        var videoSrc =
+          'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_080021_d598092b-c4c2-4e53-8e46-94cf9064cd50.mp4';
+
+        var cardBase =
+          'liquid-glass flex flex-col items-start rounded-[1.25rem] p-5 w-[220px]';
+
+        return (
+          <section className="relative min-h-[100vh] overflow-hidden bg-black">
+            <FadingVideo
+              src={videoSrc}
+              className="pointer-events-none absolute left-1/2 top-0 z-0 -translate-x-1/2 object-cover object-top"
+              style={{ width: '120%', height: '120%' }}
+            />
+
+            <div className="relative z-10 flex min-h-[100vh] flex-col pt-24">
+              <Navbar />
+
+              <div className="flex flex-1 flex-col items-center justify-center px-4">
+                <motion.div {...entrance(0.4)} className="inline-flex rounded">
+                  <div className="liquid-glass flex items-center gap-3 overflow-hidden rounded-full pr-3">
+                    <span className="rounded-full bg-white px-3 py-1 font-body text-xs font-semibold whitespace-nowrap text-black">
+                      New
+                    </span>
+                    <span className="whitespace-nowrap pr-1 font-body text-sm text-white/90">
+                      Maiden Crewed Voyage to Mars Arrives 2026
+                    </span>
+                  </div>
+                </motion.div>
+
+                <div className="mt-6 w-full flex justify-center">
+                  <BlurText
+                    text="Venture Past Our Sky Across the Universe"
+                    className="max-w-2xl text-center font-heading italic text-white text-6xl leading-[0.8] tracking-[-4px] md:text-7xl lg:text-[5.5rem]"
+                  />
+                </div>
+
+                <motion.p
+                  {...entrance(0.8)}
+                  className="mx-auto mt-4 max-w-2xl text-center font-body text-sm font-light leading-tight text-white md:text-base"
+                >
+                  Discover the universe in ways once unimaginable. Our pioneering
+                  vessels and breakthrough engineering bring deep-space exploration
+                  within reach—secure and extraordinary.
+                </motion.p>
+
+                <motion.div
+                  {...entrance(1.1)}
+                  className="mt-6 flex flex-wrap items-center justify-center gap-6"
+                >
+                  <button
+                    type="button"
+                    className="liquid-glass-strong inline-flex items-center gap-3 whitespace-nowrap rounded-full px-5 py-2.5 font-body text-sm font-medium text-white"
+                  >
+                    Start Your Voyage
+                    <IconArrowUpRight className="h-5 w-5 shrink-0" />
+                  </button>
+
+                  <a
+                    href="#"
+                    className="inline-flex items-center gap-2 font-body text-sm text-white md:text-base"
+                  >
+                    View Liftoff
+                    <IconPlayFilled className="h-4 w-4" />
+                  </a>
+                </motion.div>
+
+                <motion.div
+                  {...entrance(1.3)}
+                  className="mt-8 flex flex-wrap items-stretch justify-center gap-4"
+                >
+                  <div className={cardBase}>
+                    <IconClockOutline size={28} />
+                    <p className="mt-8 font-heading text-4xl italic leading-none tracking-[-1px] text-white">
+                      34.5 Min
+                    </p>
+                    <p className="mt-2 font-body text-xs font-light text-white">
+                      Average Videos Watch Time
+                    </p>
+                  </div>
+                  <div className={cardBase}>
+                    <IconGlobeOutline size={28} />
+                    <p className="mt-8 font-heading text-4xl italic leading-none tracking-[-1px] text-white">
+                      2.8B+
+                    </p>
+                    <p className="mt-2 font-body text-xs font-light text-white">
+                      Users Across the Globe
+                    </p>
+                  </div>
+                </motion.div>
+              </div>
+
+              <motion.div
+                {...entrance(1.4)}
+                className="flex flex-col items-center gap-4 pb-8 px-4"
+              >
+                <span className="liquid-glass rounded-full px-3.5 py-1 text-center font-body text-xs font-medium text-white max-w-xl">
+                  Collaborating with top aerospace pioneers globally
+                </span>
+                <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-3 font-heading text-2xl italic tracking-tight text-white md:gap-x-16 md:text-3xl">
+                  {['Aeon', '·', 'Vela', '·', 'Apex', '·', 'Orbit', '·', 'Zeno'].map(
+                    function (seg, si) {
+                      return (
+                        <span key={'partner-' + si}>{seg}</span>
+                      );
+                    },
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        );
+      }
+
+      window.HeroSection = HeroSection;
+    </script>
+
+    <script type="text/babel">
+      var motion = Motion.motion;
+
+      function CapabilityIconImage() {
+        return (
+          <svg
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-white"
+          >
+            <path d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v14q0 .825-.587 1.413T19 21H5Zm1-4h12l-3.75-5-3 4L9 13l-3 4Z" />
+          </svg>
+        );
+      }
+
+      function CapabilityIconMovie() {
+        return (
+          <svg
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-white"
+          >
+            <path d="M4 6.47 5.76 10H20v8H4V6.47M22 4h-4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.89-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4Z" />
+          </svg>
+        );
+      }
+
+      function CapabilityIconLightbulb() {
+        return (
+          <svg
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-white"
+          >
+            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1Zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7Z" />
+          </svg>
+        );
+      }
+
+      function CapCard({ Icon, tags, title, body }) {
+        return (
+          <div className="liquid-glass flex min-h-[360px] flex-col rounded-[1.25rem] p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="liquid-glass relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[0.75rem]">
+                <Icon />
+              </div>
+              <div className="flex max-w-[70%] flex-wrap justify-end gap-1.5">
+                {tags.map(function (tag) {
+                  return (
+                    <span
+                      key={tag}
+                      className="liquid-glass whitespace-nowrap rounded-full px-3 py-1 font-body text-[11px] text-white/90"
+                    >
+                      {tag}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex-1 min-h-[1px]" />
+
+            <div className="mt-6">
+              <h3 className="font-heading text-3xl italic leading-none tracking-[-1px] text-white md:text-4xl">
+                {title}
+              </h3>
+              <p className="mt-3 max-w-[32ch] font-body text-sm font-light leading-snug text-white/90">
+                {body}
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      function CapabilitiesSection() {
+        var capVideo =
+          'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_094631_d30ab262-45ee-4b7d-99f3-5d5848c8ef13.mp4';
+
+        var peek = {
+          initial: { filter: 'blur(10px)', opacity: 0, y: 20 },
+          whileInView: { filter: 'blur(0px)', opacity: 1, y: 0 },
+          viewport: { once: true, amount: 0.2 },
+          transition: { duration: 0.7, ease: 'easeOut' },
+        };
+
+        return (
+          <section className="relative min-h-[100vh] overflow-hidden bg-black">
+            <FadingVideo
+              src={capVideo}
+              className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+              style={{ width: '100%', height: '100%' }}
+            />
+
+            <div className="relative z-10 flex min-h-[100vh] flex-col px-8 pb-10 pt-24 md:px-16 lg:px-20">
+              <header className="mb-auto">
+                <motion.div {...peek}>
+                  <p className="mb-6 font-body text-sm text-white/80">// Capabilities</p>
+
+                  <h2 className="font-heading text-6xl italic leading-[0.9] tracking-[-3px] text-white md:text-7xl lg:text-[6rem]">
+                    Production
+                    <br />
+                    evolved
+                  </h2>
+                </motion.div>
+              </header>
+
+              <motion.div
+                className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3"
+                initial={{ filter: 'blur(10px)', opacity: 0, y: 24 }}
+                whileInView={{ filter: 'blur(0px)', opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.75, ease: 'easeOut', delay: 0.1 }}
+              >
+                <CapCard
+                  Icon={CapabilityIconImage}
+                  tags={[
+                    'Natural Context',
+                    'Photo Realism',
+                    'Infinite Settings',
+                    'Eco-Vibe',
+                  ]}
+                  title="AI Scenery"
+                  body="AI analyzes your product to create indistinguishable natural environments — from Icelandic cliffs to misty forests."
+                />
+                <CapCard
+                  Icon={CapabilityIconMovie}
+                  tags={[
+                    'Scale Fast',
+                    'Visual Consistency',
+                    'Time Saver',
+                    'Ready to Post',
+                  ]}
+                  title="Batch Production"
+                  body="Style your entire product line in minutes. Create a unified visual identity for catalogues and social media without weeks of retouching."
+                />
+                <CapCard
+                  Icon={CapabilityIconLightbulb}
+                  tags={[
+                    'Ray Tracing',
+                    'Physical Shadows',
+                    'Studio Quality',
+                    'Sunlight Sync',
+                  ]}
+                  title="Smart Lighting"
+                  body="Automatic lighting and material adjustment. Achieve flawless integration with realistic shadows and sunlight."
+                />
+              </motion.div>
+            </div>
+          </section>
+        );
+      }
+
+      window.CapabilitiesSection = CapabilitiesSection;
+    </script>
+
+    <script type="text/babel">
+      function App() {
+        return (
+          <main>
+            <HeroSection />
+            <CapabilitiesSection />
+          </main>
+        );
+      }
+
+      window.App = App;
+
+      var rootEl = document.getElementById('root');
+      var root = ReactDOM.createRoot(rootEl);
+      root.render(<App />);
+    </script>
+  </body>
+</html>
